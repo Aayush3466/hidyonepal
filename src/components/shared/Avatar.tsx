@@ -1,31 +1,47 @@
-import { cn, getInitials } from '@/lib/utils'
+import { cn, getInitials } from "@/lib/utils";
 
 interface AvatarProps {
-  src?: string | null
-  name: string
-  size?: 'sm' | 'md' | 'lg'
-  className?: string
+  src?: string | null;
+  name: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 const sizes = {
-  sm: 'w-7 h-7 text-xs',
-  md: 'w-9 h-9 text-sm',
-  lg: 'w-12 h-12 text-base',
-}
+  sm: "w-7 h-7 text-xs",
+  md: "w-9 h-9 text-sm",
+  lg: "w-12 h-12 text-base",
+};
 
-export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
+export function Avatar({ src, name, size = "md", className }: AvatarProps) {
   if (src) {
     return (
       <img
         src={src}
         alt={name}
-        className={cn('rounded-full object-cover flex-shrink-0', sizes[size], className)}
+        className={cn(
+          "rounded-full object-cover flex-shrink-0",
+          sizes[size],
+          className,
+        )}
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+          e.currentTarget.nextElementSibling?.removeAttribute("style");
+        }}
       />
-    )
+    );
   }
   return (
-    <div className={cn('rounded-full bg-brand-700 text-brand-200 font-semibold flex items-center justify-center flex-shrink-0', sizes[size], className)}>
-      {getInitials(name || 'U')}
-    </div>
-  )
+    <>
+      <div
+        className={cn(
+          "rounded-full bg-brand-700 text-brand-200 font-semibold flex items-center justify-center flex-shrink-0",
+          sizes[size],
+          className,
+        )}
+      >
+        {getInitials(name || "U")}
+      </div>
+    </>
+  );
 }

@@ -5,8 +5,9 @@ import { CommentSection } from "@/components/feed/CommentSection";
 import { timeAgo } from "@/lib/utils";
 import { MapPin } from "lucide-react";
 import { getCurrentUser } from "@/lib/user";
-import { ErrorBoundary } from "@/components/shared/ErrorBoundary"
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 
+import { PollSection } from "@/components/feed/PollSection";
 
 export default async function PostPage({ params }: any) {
   // ✅ await both in parallel
@@ -19,7 +20,10 @@ export default async function PostPage({ params }: any) {
   const [{ data: post }, { data: comments }] = await Promise.all([
     supabase
       .from("posts")
-.select("id, title, body, post_type, vote_count, comment_count, location, tags, data_sections, poll_options, created_at, profiles(username, avatar_url)")      .eq("id", params.id)
+      .select(
+        "id, title, body, post_type, vote_count, comment_count, location, tags, data_sections, poll_options, created_at, profiles(username, avatar_url)",
+      )
+      .eq("id", params.id)
       .single(),
     supabase
       .from("comments")
@@ -30,7 +34,9 @@ export default async function PostPage({ params }: any) {
 
   if (!post) notFound();
 
-  const dataSections = Array.isArray(post.data_sections) ? post.data_sections : [];
+  const dataSections = Array.isArray(post.data_sections)
+    ? post.data_sections
+    : [];
   const pollOptions = Array.isArray(post.poll_options) ? post.poll_options : [];
 
   return (
@@ -58,7 +64,9 @@ export default async function PostPage({ params }: any) {
 
         <h1 className="text-lg font-semibold mb-2">{post.title}</h1>
         {post.body && (
-          <p className="text-sm text-earth-300 leading-relaxed mb-3">{post.body}</p>
+          <p className="text-sm text-earth-300 leading-relaxed mb-3">
+            {post.body}
+          </p>
         )}
 
         {dataSections.length > 0 && (
@@ -73,41 +81,36 @@ export default async function PostPage({ params }: any) {
         )}
 
         {pollOptions.length > 0 && (
-          <div className="space-y-2 mb-3">
-            {pollOptions.map((opt: any) => {
-              const total = pollOptions.reduce((s: number, o: any) => s + (o.votes || 0), 0);
-              const pct = total > 0 ? Math.round(((opt.votes || 0) / total) * 100) : 0;
-              return (
-                <div key={opt.id} className="relative bg-earth-700 rounded-lg overflow-hidden">
-                  <div className="absolute inset-y-0 left-0 bg-brand-600/30" style={{ width: `${pct}%` }} />
-                  <div className="relative flex items-center justify-between px-3 py-2 text-sm">
-                    <span>{opt.text}</span>
-                    <span className="text-earth-400 text-xs">{pct}%</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <PollSection
+            postId={post.id}
+            initialOptions={pollOptions}
+            currentUserId={user?.id ?? null}
+          />
         )}
 
         {(post.tags || []).length > 0 && (
           <div className="flex gap-1 flex-wrap">
             {post.tags.map((t: string) => (
-              <span key={t} className="tag">#{t}</span>
+              <span key={t} className="tag">
+                #{t}
+              </span>
             ))}
           </div>
         )}
       </article>
-<ErrorBoundary fallback={
-  <div className="card p-6 text-center text-earth-500 text-sm">
-    Comments couldn&apos;t load.
-  </div>
-}>
-      <CommentSection
-        postId={post.id}
-        comments={comments || []}
-        currentUserId={user?.id}
-      />
+      <ErrorBoundary
+        fallback={
+          <div className="card p-6 text-center text-earth-500 text-sm">
+            Comments couldn&apos;t load.
+          </div>
+        }
+      >
+        <CommentSection
+          postId={post.id}
+          comments={comments || []}
+          currentUserId={user?.id}
+          currentUsername={user?.email?.split("@")[0] ?? "You"}
+        />
       </ErrorBoundary>
     </div>
   );

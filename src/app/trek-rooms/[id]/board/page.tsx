@@ -18,28 +18,40 @@ export default async function GroupBoardPage({ params }: any) {
   // ✅ membership check + group info + posts all in parallel
   // Previously: membership → then group → then posts (3 sequential round-trips)
   // Now: all 3 fire at once
-  const [{ data: membership }, { data: group }, { data: posts }] =
-    await Promise.all([
-      supabase
-        .from("group_members")
-        .select("role")
-        .eq("group_id", params.id)
-        .eq("user_id", user.id)
-        .single(),
-      supabase
-        .from("groups")
-        .select("name")
-        .eq("id", params.id)
-        .single(),
-      supabase
-        .from("group_posts")
-        .select("*, profiles(*)")
-        .eq("group_id", params.id)
-        .order("created_at", { ascending: false }),
-    ]);
+  const [
+    { data: membership, error: membershipError },
+    { data: group },
+    { data: posts },
+  ] = await Promise.all([
+    supabase
+      .from("group_members")
+      .select("role")
+      .eq("group_id", params.id)
+      .eq("user_id", user.id)
+      .single(),
+    supabase.from("groups").select("name").eq("id", params.id).single(),
+    supabase
+      .from("group_posts")
+      .select("*, profiles(*)")
+      .eq("group_id", params.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  // ✅ Access check happens after data fetch — no extra round-trip needed
-  // since we fetched membership in parallel anyway
+  if (membershipError && membershipError.code !== "PGRST116") {
+    return (
+      <div className="max-w-xl mx-auto px-3 py-4">
+        <div className="card p-8 text-center">
+          <p className="text-earth-400 mb-3">
+            Something went wrong loading the board.
+          </p>
+          <a href={`/trek-rooms/${params.id}/board`} className="btn-primary">
+            Try Again
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   if (!membership || membership.role === "pending") {
     return (
       <div className="max-w-xl mx-auto px-3 py-4">
@@ -52,7 +64,6 @@ export default async function GroupBoardPage({ params }: any) {
       </div>
     );
   }
-
   return (
     <div className="max-w-xl mx-auto px-3 py-4">
       <div className="flex items-center gap-2 mb-4">
@@ -79,7 +90,9 @@ export default async function GroupBoardPage({ params }: any) {
                 {timeAgo(post.created_at)}
               </span>
             </div>
-            <p className="text-sm text-earth-200 leading-relaxed">{post.body}</p>
+            <p className="text-sm text-earth-200 leading-relaxed">
+              {post.body}
+            </p>
           </div>
         ))}
         {(!posts || posts.length === 0) && (

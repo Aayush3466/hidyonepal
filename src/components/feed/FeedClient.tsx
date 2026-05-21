@@ -14,23 +14,31 @@ type Props = {
   initialSort: string;
 };
 
-export function FeedClient({ posts, userVotes, currentUserId, initialSort }: Props) {
+export function FeedClient({
+  posts,
+  userVotes,
+  currentUserId,
+  initialSort,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
 
   const [activeType, setActiveType] = useState<string>("all");
   const [activeSort, setActiveSort] = useState<string>(initialSort);
+  const [sortLoading, setSortLoading] = useState(false);
 
   // ✅ Client-side filter — instant, zero network calls
-  const filtered = activeType === "all"
-    ? posts
-    : posts.filter((p) => p.post_type === activeType);
+  const filtered =
+    activeType === "all"
+      ? posts
+      : posts.filter((p) => p.post_type === activeType);
 
   // Sort is already applied server-side for initial load.
   // When user switches sort, we do a server navigation (intentional —
   // sort changes the DB query ORDER, can't be done purely client-side).
   function handleSortChange(sort: string) {
     setActiveSort(sort);
+    setSortLoading(true);
     router.push(`/feed?sort=${sort}`);
   }
 
@@ -69,6 +77,9 @@ export function FeedClient({ posts, userVotes, currentUserId, initialSort }: Pro
         </div>
       </div>
 
+      {sortLoading && (
+        <p className="text-center text-earth-500 text-sm py-4">Loading…</p>
+      )}
       <div className="space-y-3">
         {filtered.map((post: any) => (
           <PostCard

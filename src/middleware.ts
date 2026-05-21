@@ -7,8 +7,9 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_ROUTES = [
   "/feed/create",
   "/profile",
-  "/trek-rooms",
-  "/marketplace/create",
+  "/trek-rooms/create",
+  "/trek-rooms/join",
+  "/marketplace/list",
 ];
 
 // Routes that should redirect to /feed if the user IS logged in

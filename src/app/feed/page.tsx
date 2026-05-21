@@ -17,8 +17,11 @@ export default async function FeedPage({ searchParams }: any) {
 
   const { data: posts } = await supabase
     .from("posts")
-.select("id, title, body, post_type, vote_count, comment_count, location, tags, data_sections, poll_options, created_at, profiles(username, avatar_url)")    .order(sort === "top" ? "vote_count" : "created_at", { ascending: false })
-    .limit(100);
+    .select(
+      "id, title, body, post_type, vote_count, comment_count, location, tags, data_sections, poll_options, created_at, profiles(username, avatar_url)",
+    )
+    .order(sort === "top" ? "vote_count" : "created_at", { ascending: false })
+    .limit(20);
 
   let userVotes: Record<string, number> = {};
   if (user && posts && posts.length > 0) {
@@ -26,8 +29,13 @@ export default async function FeedPage({ searchParams }: any) {
       .from("votes")
       .select("post_id, value")
       .eq("user_id", user.id)
-      .in("post_id", posts.map((p: any) => p.id));
-    votes?.forEach((v: any) => { userVotes[v.post_id] = v.value; });
+      .in(
+        "post_id",
+        posts.map((p: any) => p.id),
+      );
+    votes?.forEach((v: any) => {
+      userVotes[v.post_id] = v.value;
+    });
   }
 
   return (
@@ -45,12 +53,12 @@ export default async function FeedPage({ searchParams }: any) {
         <span className="btn-primary pointer-events-none">Post</span>
       </Link>
       <ErrorBoundary>
-      <FeedClient
-        posts={posts || []}
-        userVotes={userVotes}
-        currentUserId={user?.id ?? null}
-        initialSort={sort}
-      />
+        <FeedClient
+          posts={posts || []}
+          userVotes={userVotes}
+          currentUserId={user?.id ?? null}
+          initialSort={sort}
+        />
       </ErrorBoundary>
     </div>
   );

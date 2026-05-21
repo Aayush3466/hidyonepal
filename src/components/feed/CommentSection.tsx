@@ -8,7 +8,12 @@ import { createClient } from "@/lib/supabase/client";
 // ✅ Client created once at module level
 const supabase = createClient();
 
-export function CommentSection({ postId, comments: initialComments, currentUserId }: any) {
+export function CommentSection({
+  postId,
+  comments: initialComments,
+  currentUserId,
+  currentUsername,
+}: any) {
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
   // ✅ Local state for comments — optimistic append, no router.refresh()
@@ -25,7 +30,7 @@ export function CommentSection({ postId, comments: initialComments, currentUserI
       body,
       parent_id: null,
       created_at: new Date().toISOString(),
-      profiles: { username: "You", avatar_url: null }, // shown immediately
+      profiles: { username: currentUsername ?? "You", avatar_url: null },
     };
 
     // ✅ Optimistic: append instantly, no page reload
@@ -40,12 +45,14 @@ export function CommentSection({ postId, comments: initialComments, currentUserI
 
     if (error) {
       // Rollback on failure
-      setComments((prev: any[]) => prev.filter((c) => c.id !== optimisticComment.id));
+      setComments((prev: any[]) =>
+        prev.filter((c) => c.id !== optimisticComment.id),
+      );
       setBody(body);
     } else {
       // Replace temp comment with real one from DB
       setComments((prev: any[]) =>
-        prev.map((c) => (c.id === optimisticComment.id ? data : c))
+        prev.map((c) => (c.id === optimisticComment.id ? data : c)),
       );
     }
 
@@ -79,7 +86,10 @@ export function CommentSection({ postId, comments: initialComments, currentUserI
         </div>
       ) : (
         <div className="card p-3 mb-4 text-center text-sm text-earth-500">
-          <a href="/login" className="text-brand-400 hover:underline">Sign in</a> to comment
+          <a href="/login" className="text-brand-400 hover:underline">
+            Sign in
+          </a>{" "}
+          to comment
         </div>
       )}
 
@@ -91,7 +101,9 @@ export function CommentSection({ postId, comments: initialComments, currentUserI
             replies={replies.filter((r: any) => r.parent_id === comment.id)}
             postId={postId}
             currentUserId={currentUserId}
-            onReplyAdded={(reply: any) => setComments((prev: any[]) => [...prev, reply])}
+            onReplyAdded={(reply: any) =>
+              setComments((prev: any[]) => [...prev, reply])
+            }
           />
         ))}
       </div>
@@ -99,7 +111,13 @@ export function CommentSection({ postId, comments: initialComments, currentUserI
   );
 }
 
-function CommentItem({ comment, replies, postId, currentUserId, onReplyAdded }: any) {
+function CommentItem({
+  comment,
+  replies,
+  postId,
+  currentUserId,
+  onReplyAdded,
+}: any) {
   const [replyBody, setReplyBody] = useState("");
   const [showReply, setShowReply] = useState(false);
   const [localReplies, setLocalReplies] = useState(replies);
@@ -123,15 +141,22 @@ function CommentItem({ comment, replies, postId, currentUserId, onReplyAdded }: 
 
     const { data, error } = await supabase
       .from("comments")
-      .insert({ post_id: postId, author_id: currentUserId, body: replyBody, parent_id: comment.id })
+      .insert({
+        post_id: postId,
+        author_id: currentUserId,
+        body: replyBody,
+        parent_id: comment.id,
+      })
       .select("*, profiles(username, avatar_url)")
       .single();
 
     if (error) {
-      setLocalReplies((prev: any[]) => prev.filter((r) => r.id !== optimistic.id));
+      setLocalReplies((prev: any[]) =>
+        prev.filter((r) => r.id !== optimistic.id),
+      );
     } else {
       setLocalReplies((prev: any[]) =>
-        prev.map((r) => (r.id === optimistic.id ? data : r))
+        prev.map((r) => (r.id === optimistic.id ? data : r)),
       );
       onReplyAdded?.(data);
     }
@@ -140,10 +165,17 @@ function CommentItem({ comment, replies, postId, currentUserId, onReplyAdded }: 
   return (
     <div className="card p-3">
       <div className="flex items-center gap-2 mb-2">
-        <Avatar src={comment.profiles?.avatar_url} name={comment.profiles?.username || "U"} size="sm" />
+        <Avatar
+          src={comment.profiles?.avatar_url}
+          name={comment.profiles?.username || "U"}
+          size="sm"
+        />
         <span className="text-xs text-earth-400">
-          <span className="text-earth-300 font-medium">{comment.profiles?.username}</span>
-          {" · "}{timeAgo(comment.created_at)}
+          <span className="text-earth-300 font-medium">
+            {comment.profiles?.username}
+          </span>
+          {" · "}
+          {timeAgo(comment.created_at)}
         </span>
       </div>
       <p className="text-sm text-earth-200 leading-relaxed">{comment.body}</p>
@@ -165,7 +197,9 @@ function CommentItem({ comment, replies, postId, currentUserId, onReplyAdded }: 
             value={replyBody}
             onChange={(e) => setReplyBody(e.target.value)}
           />
-          <button className="btn-primary text-xs px-3" onClick={submitReply}>→</button>
+          <button className="btn-primary text-xs px-3" onClick={submitReply}>
+            →
+          </button>
         </div>
       )}
 
@@ -173,8 +207,12 @@ function CommentItem({ comment, replies, postId, currentUserId, onReplyAdded }: 
         <div className="mt-3 pl-4 border-l border-earth-700 space-y-2">
           {localReplies.map((r: any) => (
             <div key={r.id}>
-              <span className="text-xs font-medium text-earth-300">{r.profiles?.username} </span>
-              <span className="text-xs text-earth-600">{timeAgo(r.created_at)}</span>
+              <span className="text-xs font-medium text-earth-300">
+                {r.profiles?.username}{" "}
+              </span>
+              <span className="text-xs text-earth-600">
+                {timeAgo(r.created_at)}
+              </span>
               <p className="text-xs text-earth-300 mt-0.5">{r.body}</p>
             </div>
           ))}

@@ -1,50 +1,47 @@
-'use client'
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { Mountain, Mail } from 'lucide-react'
-import Link from 'next/link'
+"use client";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Mountain, Mail } from "lucide-react";
+import Link from "next/link";
 
-const supabase = createClient()
+const supabase = createClient();
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [username, setUsername] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [confirmed, setConfirmed] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
 
   async function signUp() {
     if (!email || !password || !username) {
-      setError('Please fill all fields')
-      return
+      setError("Please fill all fields");
+      return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      return
+      setError("Password must be at least 6 characters");
+      return;
     }
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username },
-        // ✅ After clicking confirm in email, user lands on /feed
-        emailRedirectTo: `${window.location.origin}/feed`,
-      },
-    })
+    // Check if username is already taken
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", username.trim())
+      .single();
 
-    if (signUpError) {
-      setError(signUpError.message)
-      setLoading(false)
-      return
+    if (existing) {
+      setError("Username already taken, please choose another");
+      setLoading(false);
+      return;
     }
 
     // ✅ Don't redirect — show "check your email" screen instead
-    setConfirmed(true)
-    setLoading(false)
+    setConfirmed(true);
+    setLoading(false);
   }
 
   // ✅ "Check your email" screen — shown after successful signup
@@ -63,19 +60,19 @@ export default function RegisterPage() {
         </div>
         <div className="card p-5 text-center space-y-4">
           <p className="text-earth-400 text-sm leading-relaxed">
-            Click the link in your email to confirm your account.
-            You&apos;ll be automatically signed in and taken to the feed.
+            Click the link in your email to confirm your account. You&apos;ll be
+            automatically signed in and taken to the feed.
           </p>
           <div className="border-t border-earth-700 pt-4">
             <p className="text-xs text-earth-500">
-              Wrong email?{' '}
+              Wrong email?{" "}
               <button
                 className="text-brand-400 hover:underline"
                 onClick={() => {
-                  setConfirmed(false)
-                  setEmail('')
-                  setPassword('')
-                  setUsername('')
+                  setConfirmed(false);
+                  setEmail("");
+                  setPassword("");
+                  setUsername("");
                 }}
               >
                 Go back
@@ -83,14 +80,14 @@ export default function RegisterPage() {
             </p>
           </div>
           <p className="text-xs text-earth-500">
-            Already confirmed?{' '}
+            Already confirmed?{" "}
             <Link href="/login" className="text-brand-400 hover:underline">
               Sign in
             </Link>
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -107,22 +104,22 @@ export default function RegisterPage() {
           className="input"
           placeholder="Username"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <input
           className="input"
           type="email"
           placeholder="Email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           className="input"
           type="password"
           placeholder="Password (min 6 chars)"
           value={password}
-          onChange={e => setPassword(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && signUp()}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && signUp()}
         />
         {error && (
           <p className="text-red-400 text-xs bg-red-900/20 px-3 py-2 rounded-lg">
@@ -134,15 +131,15 @@ export default function RegisterPage() {
           onClick={signUp}
           disabled={loading}
         >
-          {loading ? 'Creating account…' : 'Create Account'}
+          {loading ? "Creating account…" : "Create Account"}
         </button>
         <p className="text-center text-xs text-earth-500">
-          Have account?{' '}
+          Have account?{" "}
           <Link href="/login" className="text-brand-400 hover:underline">
             Sign in
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
