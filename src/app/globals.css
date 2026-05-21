@@ -3,15 +3,29 @@
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
-  body { background-color: #1c1917; color: #f5f5f4; }
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: #292524; }
-  ::-webkit-scrollbar-thumb { background: #57534e; border-radius: 2px; }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background-color: #1c1917;
+    color: #f5f5f4;
+  }
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #292524;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #57534e;
+    border-radius: 2px;
+  }
 }
 
 @layer components {
-  .card { @apply bg-earth-800 border border-earth-700 rounded-xl; }
+  .card {
+    @apply bg-earth-800 border border-earth-700 rounded-xl;
+  }
 
   .btn-primary {
     @apply bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-medium
@@ -43,5 +57,20 @@
   .badge-full {
     @apply inline-flex items-center bg-red-900/50 text-red-400
     text-xs px-2 py-0.5 rounded-full border border-red-800;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  select.input {
+    @apply bg-earth-700 border border-earth-600 text-earth-100
+    rounded-lg px-3 py-2 text-sm focus:outline-none 
+    focus:border-brand-500 w-full transition-colors cursor-pointer;
+    -webkit-appearance: none;
   }
 }

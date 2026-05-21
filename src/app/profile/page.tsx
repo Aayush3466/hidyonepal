@@ -5,6 +5,7 @@ import { SignOutButton } from "@/components/shared/SignOutButton";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/user";
+import { Edit } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,15 @@ export default async function ProfilePage() {
         <div className="flex items-start gap-4 mb-4">
           <Avatar src={profile?.avatar_url} name={displayName} size="lg" />
           <div className="flex-1">
-            <h1 className="font-semibold text-lg">{displayName}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-semibold text-lg">{displayName}</h1>
+              <Link
+                href="/profile/edit"
+                className="p-1.5 rounded-lg hover:bg-earth-700 transition-colors"
+              >
+                <Edit className="w-4 h-4 text-earth-400" />
+              </Link>
+            </div>
             {profile?.full_name && (
               <p className="text-earth-400 text-sm">{profile.full_name}</p>
             )}

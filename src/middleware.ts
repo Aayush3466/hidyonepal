@@ -10,6 +10,7 @@ const PROTECTED_ROUTES = [
   "/trek-rooms/create",
   "/trek-rooms/join",
   "/marketplace/list",
+  "/profile/edit",
 ];
 
 // Routes that should redirect to /feed if the user IS logged in

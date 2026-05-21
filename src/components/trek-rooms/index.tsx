@@ -1,40 +1,40 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Avatar } from '@/components/shared/Avatar'
-import { Shield, UserX } from 'lucide-react'
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Avatar } from "@/components/shared/Avatar";
+import { Shield, UserX, LogOut } from "lucide-react";
 
 // ✅ One client for the entire module — never recreated
-const supabase = createClient()
+const supabase = createClient();
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function JoinButton({
   groupId,
   userId,
-  initialPending = false,  // ← comes from server, survives navigation
+  initialPending = false, // ← comes from server, survives navigation
 }: {
-  groupId: string
-  userId: string
-  initialPending?: boolean
+  groupId: string;
+  userId: string;
+  initialPending?: boolean;
 }) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   // ✅ initialPending from server — not hardcoded false
   // When server says isPending=true, this starts true
   // When server says no membership, this starts false
-  const [isPending, setIsPending] = useState(initialPending)
+  const [isPending, setIsPending] = useState(initialPending);
 
   async function join() {
-    setLoading(true)
+    setLoading(true);
     const { error } = await supabase
       .from("group_members")
-      .insert({ group_id: groupId, user_id: userId, role: "pending" })
+      .insert({ group_id: groupId, user_id: userId, role: "pending" });
 
     if (!error) {
-      setIsPending(true)
+      setIsPending(true);
     }
-    setLoading(false)
+    setLoading(false);
   }
 
   if (isPending) {
@@ -42,59 +42,108 @@ export function JoinButton({
       <div className="bg-earth-700 text-earth-300 text-sm text-center py-2 rounded-lg">
         Request pending admin approval…
       </div>
-    )
+    );
   }
 
   return (
     <button className="btn-primary w-full" onClick={join} disabled={loading}>
       {loading ? "Sending request…" : "Request to Join"}
     </button>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─── Leave Button ─────────────────────────────────────────────────────────────
+export function LeaveButton({
+  groupId,
+  userId,
+}: {
+  groupId: string;
+  userId: string;
+}) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [confirm, setConfirm] = useState(false);
 
-export function MemberList({ groupId, members: initialMembers, isAdmin, currentUserId }: any) {
+  async function handleLeave() {
+    if (!confirm) {
+      setConfirm(true);
+      return;
+    }
+    setLoading(true);
+    await supabase
+      .from("group_members")
+      .delete()
+      .match({ group_id: groupId, user_id: userId });
+    setLoading(false);
+    router.push("/trek-rooms");
+    router.refresh();
+  }
+
+  return (
+    <button
+      onClick={handleLeave}
+      disabled={loading}
+      className="btn-ghost w-full flex items-center justify-center gap-2 text-red-400 hover:text-red-300 mt-2"
+    >
+      <LogOut className="w-4 h-4" />
+      {loading ? "…" : confirm ? "Tap again to confirm" : "Leave Room"}
+    </button>
+  );
+}
+
+export function MemberList({
+  groupId,
+  members: initialMembers,
+  isAdmin,
+  currentUserId,
+}: any) {
   // ✅ Local state — mutations update UI instantly without router.refresh()
-  const [members, setMembers] = useState(initialMembers || [])
+  const [members, setMembers] = useState(initialMembers || []);
 
-  const accepted = members.filter((m: any) => m.role !== 'pending')
-  const pending = members.filter((m: any) => m.role === 'pending')
+  const accepted = members.filter((m: any) => m.role !== "pending");
+  const pending = members.filter((m: any) => m.role === "pending");
 
   async function kickMember(memberId: string) {
-    if (!confirm('Remove this member?')) return
+    if (!confirm("Remove this member?")) return;
     // ✅ Optimistic: remove from UI instantly
-    setMembers((prev: any[]) => prev.filter((m) => m.id !== memberId))
-    const { error } = await supabase.from('group_members').delete().eq('id', memberId)
+    setMembers((prev: any[]) => prev.filter((m) => m.id !== memberId));
+    const { error } = await supabase
+      .from("group_members")
+      .delete()
+      .eq("id", memberId);
     if (error) {
       // Rollback on failure — re-fetch would be needed here, simplest is alert
-      alert('Failed to remove member. Please refresh.')
+      alert("Failed to remove member. Please refresh.");
     }
   }
 
   async function acceptMember(memberId: string) {
     // ✅ Optimistic: flip role to 'member' instantly
     setMembers((prev: any[]) =>
-      prev.map((m) => m.id === memberId ? { ...m, role: 'member' } : m)
-    )
+      prev.map((m) => (m.id === memberId ? { ...m, role: "member" } : m)),
+    );
     const { error } = await supabase
-      .from('group_members')
-      .update({ role: 'member' })
-      .eq('id', memberId)
+      .from("group_members")
+      .update({ role: "member" })
+      .eq("id", memberId);
     if (error) {
       // Rollback
       setMembers((prev: any[]) =>
-        prev.map((m) => m.id === memberId ? { ...m, role: 'pending' } : m)
-      )
+        prev.map((m) => (m.id === memberId ? { ...m, role: "pending" } : m)),
+      );
     }
   }
 
   async function rejectMember(memberId: string) {
     // ✅ Optimistic: remove from list instantly
-    setMembers((prev: any[]) => prev.filter((m) => m.id !== memberId))
-    const { error } = await supabase.from('group_members').delete().eq('id', memberId)
+    setMembers((prev: any[]) => prev.filter((m) => m.id !== memberId));
+    const { error } = await supabase
+      .from("group_members")
+      .delete()
+      .eq("id", memberId);
     if (error) {
-      alert('Failed to reject member. Please refresh.')
+      alert("Failed to reject member. Please refresh.");
     }
   }
 
@@ -107,10 +156,16 @@ export function MemberList({ groupId, members: initialMembers, isAdmin, currentU
         <div className="space-y-2">
           {accepted.map((m: any) => (
             <div key={m.id} className="flex items-center gap-3">
-              <Avatar src={m.profiles?.avatar_url} name={m.profiles?.username || 'U'} size="sm" />
+              <Avatar
+                src={m.profiles?.avatar_url}
+                name={m.profiles?.username || "U"}
+                size="sm"
+              />
               <span className="text-sm flex-1">{m.profiles?.username}</span>
-              {m.role === 'admin' && <Shield className="w-3.5 h-3.5 text-brand-400" />}
-              {isAdmin && m.user_id !== currentUserId && m.role !== 'admin' && (
+              {m.role === "admin" && (
+                <Shield className="w-3.5 h-3.5 text-brand-400" />
+              )}
+              {isAdmin && m.user_id !== currentUserId && m.role !== "admin" && (
                 <button
                   onClick={() => kickMember(m.id)}
                   className="p-1 rounded hover:bg-red-900/30 text-earth-600 hover:text-red-400 transition-colors"
@@ -131,7 +186,11 @@ export function MemberList({ groupId, members: initialMembers, isAdmin, currentU
           <div className="space-y-2">
             {pending.map((m: any) => (
               <div key={m.id} className="flex items-center gap-3">
-                <Avatar src={m.profiles?.avatar_url} name={m.profiles?.username || 'U'} size="sm" />
+                <Avatar
+                  src={m.profiles?.avatar_url}
+                  name={m.profiles?.username || "U"}
+                  size="sm"
+                />
                 <span className="text-sm flex-1">{m.profiles?.username}</span>
                 <button
                   onClick={() => acceptMember(m.id)}
@@ -151,20 +210,26 @@ export function MemberList({ groupId, members: initialMembers, isAdmin, currentU
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function BoardPostForm({ groupId, userId }: { groupId: string; userId: string }) {
-  const [body, setBody] = useState('')
-  const [loading, setLoading] = useState(false)
+export function BoardPostForm({
+  groupId,
+  userId,
+}: {
+  groupId: string;
+  userId: string;
+}) {
+  const [body, setBody] = useState("");
+  const [loading, setLoading] = useState(false);
   // ✅ Local posts state for optimistic append — no router.refresh()
-  const [localPosts, setLocalPosts] = useState<any[]>([])
+  const [localPosts, setLocalPosts] = useState<any[]>([]);
 
   async function submit() {
-    if (!body.trim()) return
-    setLoading(true)
+    if (!body.trim()) return;
+    setLoading(true);
 
     const optimistic = {
       id: `temp-${Date.now()}`,
@@ -172,29 +237,29 @@ export function BoardPostForm({ groupId, userId }: { groupId: string; userId: st
       author_id: userId,
       body,
       created_at: new Date().toISOString(),
-      profiles: { username: 'You', avatar_url: null },
-    }
+      profiles: { username: "You", avatar_url: null },
+    };
 
     // ✅ Show post instantly
-    setLocalPosts((prev) => [optimistic, ...prev])
-    setBody('')
-    setLoading(false)
+    setLocalPosts((prev) => [optimistic, ...prev]);
+    setBody("");
+    setLoading(false);
 
     const { data, error } = await supabase
-      .from('group_posts')
+      .from("group_posts")
       .insert({ group_id: groupId, author_id: userId, body: optimistic.body })
-      .select('*, profiles(username, avatar_url)')
-      .single()
+      .select("*, profiles(username, avatar_url)")
+      .single();
 
     if (error) {
       // Rollback
-      setLocalPosts((prev) => prev.filter((p) => p.id !== optimistic.id))
-      setBody(optimistic.body)
+      setLocalPosts((prev) => prev.filter((p) => p.id !== optimistic.id));
+      setBody(optimistic.body);
     } else {
       // Replace temp with real
       setLocalPosts((prev) =>
-        prev.map((p) => (p.id === optimistic.id ? data : p))
-      )
+        prev.map((p) => (p.id === optimistic.id ? data : p)),
+      );
     }
   }
 
@@ -205,7 +270,7 @@ export function BoardPostForm({ groupId, userId }: { groupId: string; userId: st
           className="input min-h-[60px] resize-none flex-1"
           placeholder="Post to the board…"
           value={body}
-          onChange={e => setBody(e.target.value)}
+          onChange={(e) => setBody(e.target.value)}
         />
         <button
           className="btn-primary self-end"
@@ -224,21 +289,23 @@ export function BoardPostForm({ groupId, userId }: { groupId: string; userId: st
               <div className="flex items-center gap-2 mb-2">
                 <Avatar
                   src={post.profiles?.avatar_url}
-                  name={post.profiles?.username || 'U'}
+                  name={post.profiles?.username || "U"}
                   size="sm"
                 />
                 <span className="text-xs text-earth-400">
                   <span className="text-earth-300 font-medium">
                     {post.profiles?.username}
                   </span>
-                  {' · '}just now
+                  {" · "}just now
                 </span>
               </div>
-              <p className="text-sm text-earth-200 leading-relaxed">{post.body}</p>
+              <p className="text-sm text-earth-200 leading-relaxed">
+                {post.body}
+              </p>
             </div>
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }

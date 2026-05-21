@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { MapPin, Calendar, Users } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
-import { JoinButton, MemberList } from "@/components/trek-rooms";
+import { JoinButton, LeaveButton, MemberList } from "@/components/trek-rooms";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/user";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
@@ -18,7 +18,9 @@ export default async function TrekRoomPage({ params }: any) {
   const [{ data: group }, { data: members }] = await Promise.all([
     supabase
       .from("groups")
-      .select("id, name, description, location, trek_date, max_members, tags, status, is_private, profiles(username, avatar_url)")
+      .select(
+        "id, name, description, location, trek_date, max_members, tags, status, is_private, profiles(username, avatar_url)",
+      )
       .eq("id", params.id)
       .single(),
     supabase
@@ -42,7 +44,6 @@ export default async function TrekRoomPage({ params }: any) {
 
   return (
     <div className="max-w-xl mx-auto px-3 py-4">
-
       {/* ── Group info card ── */}
       <div className="card p-4 mb-4">
         <div className="flex items-start gap-3 mb-3">
@@ -69,12 +70,14 @@ export default async function TrekRoomPage({ params }: any) {
         <div className="flex flex-wrap gap-3 text-xs text-earth-400 mb-3">
           {group.location && (
             <span className="flex items-center gap-1">
-              <MapPin className="w-3 h-3" />{group.location}
+              <MapPin className="w-3 h-3" />
+              {group.location}
             </span>
           )}
           {group.trek_date && (
             <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />{group.trek_date}
+              <Calendar className="w-3 h-3" />
+              {group.trek_date}
             </span>
           )}
           <span className="flex items-center gap-1">
@@ -86,19 +89,24 @@ export default async function TrekRoomPage({ params }: any) {
         {(group.tags || []).length > 0 && (
           <div className="flex gap-1 flex-wrap mb-3">
             {group.tags.map((t: string) => (
-              <span key={t} className="tag">{t}</span>
+              <span key={t} className="tag">
+                {t}
+              </span>
             ))}
           </div>
         )}
 
         {/* ── CTA buttons ── */}
         {isMember && (
-          <Link
-            href={`/trek-rooms/${group.id}/board`}
-            className="btn-primary w-full text-center block"
-          >
-            Open Group Board
-          </Link>
+          <>
+            <Link
+              href={`/trek-rooms/${group.id}/board`}
+              className="btn-primary w-full text-center block"
+            >
+              Open Group Board
+            </Link>
+            {!isAdmin && <LeaveButton groupId={group.id} userId={user!.id} />}
+          </>
         )}
         {!user && (
           <Link href="/login" className="btn-primary w-full text-center block">
@@ -117,7 +125,8 @@ export default async function TrekRoomPage({ params }: any) {
             Group is full
           </div>
         )}
-      </div>{/* ── end card ── */}
+      </div>
+      {/* ── end card ── */}
 
       {/* ── Member list — separate from card, has its own error boundary ── */}
       <ErrorBoundary>
@@ -128,7 +137,6 @@ export default async function TrekRoomPage({ params }: any) {
           currentUserId={user?.id}
         />
       </ErrorBoundary>
-
     </div> // ── end page wrapper ──
   );
 }
