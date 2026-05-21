@@ -4,8 +4,7 @@ import { Plus, MapPin, Calendar, Users } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
 import { getCurrentUser } from "@/lib/user";
 
-export const dynamic = "force-dynamic";
-
+export const revalidate = 60; // refresh every 60 seconds
 export default async function TrekRoomsPage() {
   // ✅ await both in parallel
   const [supabase, user] = await Promise.all([
@@ -15,7 +14,10 @@ export default async function TrekRoomsPage() {
 
   const { data: groups } = await supabase
     .from("groups")
-.select("id, name, description, location, trek_date, max_members, tags, created_at, profiles(username, avatar_url)")    .order("created_at", { ascending: false })
+    .select(
+      "id, name, description, location, trek_date, max_members, tags, created_at, profiles(username, avatar_url)",
+    )
+    .order("created_at", { ascending: false })
     .limit(30);
 
   const groupIds = (groups || []).map((g: any) => g.id);
@@ -62,7 +64,9 @@ export default async function TrekRoomsPage() {
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="font-semibold text-sm truncate">{group.name}</h2>
+                    <h2 className="font-semibold text-sm truncate">
+                      {group.name}
+                    </h2>
                     <span className={isFull ? "badge-full" : "badge-open"}>
                       {isFull ? "Full" : "Open"}
                     </span>
@@ -75,12 +79,14 @@ export default async function TrekRoomsPage() {
                   <div className="flex items-center gap-3 text-xs text-earth-500">
                     {group.location && (
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />{group.location}
+                        <MapPin className="w-3 h-3" />
+                        {group.location}
                       </span>
                     )}
                     {group.trek_date && (
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />{group.trek_date}
+                        <Calendar className="w-3 h-3" />
+                        {group.trek_date}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
@@ -93,7 +99,9 @@ export default async function TrekRoomsPage() {
               {(group.tags || []).length > 0 && (
                 <div className="flex gap-1 mt-2 ml-12">
                   {group.tags.slice(0, 3).map((t: string) => (
-                    <span key={t} className="tag">{t}</span>
+                    <span key={t} className="tag">
+                      {t}
+                    </span>
                   ))}
                 </div>
               )}

@@ -5,12 +5,27 @@ import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { getCurrentUser } from "@/lib/user";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // refresh every 60 seconds
 
-const CATEGORIES = ["all","tent","sleeping_bag","clothing","footwear","navigation","cooking","safety"];
+const CATEGORIES = [
+  "all",
+  "tent",
+  "sleeping_bag",
+  "clothing",
+  "footwear",
+  "navigation",
+  "cooking",
+  "safety",
+];
 const EMOJI: Record<string, string> = {
-  tent: "⛺", sleeping_bag: "🛏️", clothing: "🧥", footwear: "👟",
-  navigation: "🧭", cooking: "🍳", safety: "🪖", other: "🎒",
+  tent: "⛺",
+  sleeping_bag: "🛏️",
+  clothing: "🧥",
+  footwear: "👟",
+  navigation: "🧭",
+  cooking: "🍳",
+  safety: "🪖",
+  other: "🎒",
 };
 
 export default async function MarketplacePage({ searchParams }: any) {
@@ -25,14 +40,16 @@ export default async function MarketplacePage({ searchParams }: any) {
 
   let query = supabase
     .from("equipment")
-.select("id, title, category, condition, listing_type, price_per_day, location, tags, is_available, created_at, profiles(username, avatar_url)")    .eq("is_available", true)
+    .select(
+      "id, title, category, condition, listing_type, price_per_day, location, tags, is_available, created_at, profiles(username, avatar_url)",
+    )
+    .eq("is_available", true)
     .order("created_at", { ascending: false })
     .limit(30);
 
   if (category && category !== "all")
     query = (query as any).eq("category", category);
-  if (listingType)
-    query = (query as any).eq("listing_type", listingType);
+  if (listingType) query = (query as any).eq("listing_type", listingType);
 
   const { data: items } = await query;
 
@@ -86,7 +103,9 @@ export default async function MarketplacePage({ searchParams }: any) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h2 className="font-medium text-sm truncate">{item.title}</h2>
-                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${item.listing_type === "lend" ? "bg-green-900/50 text-green-400" : "bg-blue-900/50 text-blue-400"}`}>
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${item.listing_type === "lend" ? "bg-green-900/50 text-green-400" : "bg-blue-900/50 text-blue-400"}`}
+                  >
                     {item.listing_type === "lend" ? "Free" : "Rent"}
                   </span>
                 </div>
@@ -96,7 +115,8 @@ export default async function MarketplacePage({ searchParams }: any) {
                 <div className="flex items-center gap-3 text-xs text-earth-500 mt-1">
                   {item.location && (
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />{item.location}
+                      <MapPin className="w-3 h-3" />
+                      {item.location}
                     </span>
                   )}
                   <span className="capitalize">{item.condition}</span>

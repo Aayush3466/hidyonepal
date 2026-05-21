@@ -4,8 +4,7 @@ import { FeedClient } from "@/components/feed/FeedClient";
 import Link from "next/link";
 import { PenLine } from "lucide-react";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
-export const dynamic = "force-dynamic";
-
+export const revalidate = 30; // refresh every 30 seconds
 export default async function FeedPage({ searchParams }: any) {
   // ✅ await createClient — it's async now
   const [supabase, user] = await Promise.all([
