@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn, getInitials } from "@/lib/utils";
 
 interface AvatarProps {
@@ -8,40 +9,42 @@ interface AvatarProps {
 }
 
 const sizes = {
-  sm: "w-7 h-7 text-xs",
-  md: "w-9 h-9 text-sm",
-  lg: "w-12 h-12 text-base",
+  sm: { class: "w-7 h-7 text-xs", px: 28 },
+  md: { class: "w-9 h-9 text-sm", px: 36 },
+  lg: { class: "w-12 h-12 text-base", px: 48 },
 };
 
 export function Avatar({ src, name, size = "md", className }: AvatarProps) {
+  const { class: sizeClass, px } = sizes[size];
+
   if (src) {
     return (
-      <img
+      <Image
         src={src}
         alt={name}
+        width={px}
+        height={px}
         className={cn(
           "rounded-full object-cover flex-shrink-0",
-          sizes[size],
+          sizeClass,
           className,
         )}
         onError={(e) => {
           e.currentTarget.style.display = "none";
-          e.currentTarget.nextElementSibling?.removeAttribute("style");
         }}
       />
     );
   }
+
   return (
-    <>
-      <div
-        className={cn(
-          "rounded-full bg-brand-700 text-brand-200 font-semibold flex items-center justify-center flex-shrink-0",
-          sizes[size],
-          className,
-        )}
-      >
-        {getInitials(name || "U")}
-      </div>
-    </>
+    <div
+      className={cn(
+        "rounded-full bg-brand-700 text-brand-200 font-semibold flex items-center justify-center flex-shrink-0",
+        sizeClass,
+        className,
+      )}
+    >
+      {getInitials(name || "U")}
+    </div>
   );
 }

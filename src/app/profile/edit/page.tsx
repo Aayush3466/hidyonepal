@@ -88,7 +88,6 @@ export default function EditProfilePage() {
         full_name: fullName.trim() || null,
         bio: bio.trim() || null,
         location: location.trim() || null,
-        avatar_url: avatarUrl.trim() || null,
         trekker_level: trekkerLevel,
       })
       .eq("id", user.id);
@@ -163,26 +162,6 @@ export default function EditProfilePage() {
             onChange={(e) => setLocation(e.target.value)}
             maxLength={60}
           />
-        </div>
-
-        <div>
-          <label className="text-xs text-earth-500 mb-1 block">
-            Avatar URL
-          </label>
-          <input
-            className="input"
-            placeholder="https://... (paste image link)"
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-          />
-          {avatarUrl && (
-            <img
-              src={avatarUrl}
-              alt="preview"
-              className="w-12 h-12 rounded-full object-cover mt-2"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-            />
-          )}
         </div>
 
         <div>

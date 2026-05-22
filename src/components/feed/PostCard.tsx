@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { useState, useRef } from "react";
 import { ChevronUp, ChevronDown, MessageSquare, MapPin } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
 import { cn, timeAgo } from "@/lib/utils";
@@ -10,7 +10,11 @@ import { createClient } from "@/lib/supabase/client";
 // ✅ Fix: client created once at module level, not inside component body
 const supabase = createClient();
 
-export function PostCard({ post, currentUserId, userVote: initialVote }: any) {
+export const PostCard = React.memo(function PostCard({
+  post,
+  currentUserId,
+  userVote: initialVote,
+}: any) {
   const [votes, setVotes] = useState(post.vote_count || 0);
   const [userVote, setUserVote] = useState<number | null>(initialVote ?? null);
 
@@ -173,4 +177,4 @@ export function PostCard({ post, currentUserId, userVote: initialVote }: any) {
       </div>
     </article>
   );
-}
+});

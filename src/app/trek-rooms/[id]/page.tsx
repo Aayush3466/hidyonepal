@@ -5,6 +5,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { JoinButton, LeaveButton, MemberList } from "@/components/trek-rooms";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/user";
+import { ArrowLeft } from "lucide-react";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +45,14 @@ export default async function TrekRoomPage({ params }: any) {
 
   return (
     <div className="max-w-xl mx-auto px-3 py-4">
+      <Link
+        href="/trek-rooms"
+        className="flex items-center gap-2 text-earth-400 hover:text-earth-200 text-sm mb-4 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Rooms
+      </Link>
+
       {/* ── Group info card ── */}
       <div className="card p-4 mb-4">
         <div className="flex items-start gap-3 mb-3">

@@ -5,6 +5,9 @@ import { CommentSection } from "@/components/feed/CommentSection";
 import { timeAgo } from "@/lib/utils";
 import { MapPin } from "lucide-react";
 import { getCurrentUser } from "@/lib/user";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 
 import { PollSection } from "@/components/feed/PollSection";
@@ -41,6 +44,13 @@ export default async function PostPage({ params }: any) {
 
   return (
     <div className="max-w-xl mx-auto px-3 py-4">
+      <Link
+        href="/feed"
+        className="flex items-center gap-2 text-earth-400 hover:text-earth-200 text-sm mb-4 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Feed
+      </Link>
       <article className="card p-4 mb-4">
         <div className="flex items-center gap-2 mb-3">
           <Avatar

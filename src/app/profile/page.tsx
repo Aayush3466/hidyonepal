@@ -17,23 +17,32 @@ export default async function ProfilePage() {
 
   if (!user) redirect("/login");
 
-  const [{ data: profile }, { count: postCount }, { count: groupCount }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("username, full_name, avatar_url, bio, location, trekker_level")
-        .eq("id", user.id)
-        .single(),
-      supabase
-        .from("posts")
-        .select("id", { count: "exact", head: true })
-        .eq("author_id", user.id),
-      supabase
-        .from("group_members")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .in("role", ["admin", "member"]),
-    ]);
+  const [
+    { data: profile },
+    { count: postCount },
+    { count: groupCount },
+    { data: activeRentals },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("username, full_name, avatar_url, bio, location, trekker_level")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", user.id),
+    supabase
+      .from("group_members")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .in("role", ["admin", "member"]),
+    supabase
+      .from("equipment_rentals")
+      .select("*, equipment(title, category)")
+      .eq("renter_id", user.id)
+      .eq("status", "active"),
+  ]);
 
   const displayName =
     profile?.username || user.email?.split("@")[0] || "Trekker";
@@ -89,6 +98,33 @@ export default async function ProfilePage() {
 
         <SignOutButton />
       </div>
+
+      {/* Active rentals */}
+      {activeRentals && activeRentals.length > 0 && (
+        <div className="card p-4 mb-4">
+          <h2 className="text-sm font-semibold text-earth-400 uppercase tracking-wide mb-3">
+            🎒 Currently Renting
+          </h2>
+          <div className="space-y-2">
+            {activeRentals.map((rental: any) => (
+              <div key={rental.id} className="bg-earth-700/50 rounded-lg p-3">
+                <p className="text-sm font-medium text-earth-200 capitalize">
+                  {rental.equipment?.title}
+                </p>
+                <p className="text-xs text-earth-500 mt-0.5 capitalize">
+                  {rental.equipment?.category?.replace("_", " ")}
+                </p>
+                {rental.expected_return && (
+                  <p className="text-xs text-brand-400 mt-1">
+                    Return by:{" "}
+                    {new Date(rental.expected_return).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         {[
