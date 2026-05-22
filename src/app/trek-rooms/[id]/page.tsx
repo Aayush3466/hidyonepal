@@ -63,7 +63,7 @@ export default async function TrekRoomPage({ params }: any) {
           />
           <div className="flex-1">
             <h1 className="font-semibold text-lg">{group.name}</h1>
-            <p className="text-xs text-earth-500">
+            <p className="text-xs text-gray-500">
               by {(group.profiles as any)?.username}
             </p>
           </div>
@@ -73,10 +73,11 @@ export default async function TrekRoomPage({ params }: any) {
         </div>
 
         {group.description && (
-          <p className="text-sm text-earth-300 mb-3">{group.description}</p>
+          <p className="text-sm text-gray-600 mb-3">{group.description}</p>
         )}
 
-        <div className="flex flex-wrap gap-3 text-xs text-earth-400 mb-3">
+        <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-3">
+          {" "}
           {group.location && (
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />

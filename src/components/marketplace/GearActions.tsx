@@ -21,7 +21,6 @@ export function GearActions({
   const [error, setError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // ── Delete gear listing ──────────────────────────────────────────
   async function handleDelete() {
     if (!confirmDelete) {
       setConfirmDelete(true);
@@ -30,10 +29,8 @@ export function GearActions({
     setLoading(true);
     await supabase.from("equipment").delete().eq("id", item.id);
     router.push("/marketplace");
-    router.refresh();
   }
 
-  // ── Mark as rented ───────────────────────────────────────────────
   async function handleMarkRented() {
     if (!renterUsername.trim()) {
       setError("Enter renter username");
@@ -42,7 +39,6 @@ export function GearActions({
     setLoading(true);
     setError("");
 
-    // Find renter profile by username
     const { data: renterProfile } = await supabase
       .from("profiles")
       .select("id, username")
@@ -55,7 +51,6 @@ export function GearActions({
       return;
     }
 
-    // Create rental record
     const { error: rentalError } = await supabase
       .from("equipment_rentals")
       .insert({
@@ -73,7 +68,6 @@ export function GearActions({
       return;
     }
 
-    // Update equipment status
     await supabase
       .from("equipment")
       .update({ status: "rented", is_available: false })
@@ -81,10 +75,9 @@ export function GearActions({
 
     setShowRentForm(false);
     setLoading(false);
-    router.refresh();
+    window.location.reload();
   }
 
-  // ── Mark as reserved ─────────────────────────────────────────────
   async function handleMarkReserved() {
     setLoading(true);
     await supabase
@@ -92,36 +85,29 @@ export function GearActions({
       .update({ status: "reserved" })
       .eq("id", item.id);
     setLoading(false);
-    router.refresh();
+    window.location.reload();
   }
 
-  // ── Mark as returned ─────────────────────────────────────────────
   async function handleMarkReturned() {
     setLoading(true);
-
-    // Update rental record
     if (activeRental) {
       await supabase
         .from("equipment_rentals")
         .update({ status: "returned", returned_at: new Date().toISOString() })
         .eq("id", activeRental.id);
     }
-
-    // Mark equipment available again
     await supabase
       .from("equipment")
       .update({ status: "available", is_available: true })
       .eq("id", item.id);
-
     setLoading(false);
-    router.refresh();
+    window.location.reload();
   }
 
   // ── Owner view ───────────────────────────────────────────────────
   if (isOwner) {
     return (
       <div className="space-y-2">
-        {/* Status management */}
         {item.status === "available" && (
           <>
             <button
@@ -135,7 +121,7 @@ export function GearActions({
             <button
               onClick={handleMarkReserved}
               disabled={loading}
-              className="btn-ghost w-full text-yellow-400 hover:text-yellow-300"
+              className="w-full py-2.5 rounded-xl text-sm font-medium border border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 transition-all"
             >
               🟡 Mark as Reserved
             </button>
@@ -155,7 +141,7 @@ export function GearActions({
             <button
               onClick={handleMarkReturned}
               disabled={loading}
-              className="btn-ghost w-full"
+              className="w-full py-2.5 rounded-xl text-sm font-medium border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-all"
             >
               ✅ Mark as Available
             </button>
@@ -173,10 +159,9 @@ export function GearActions({
           </button>
         )}
 
-        {/* Rent form */}
         {showRentForm && (
-          <div className="card p-3 space-y-2 mt-2">
-            <p className="text-xs font-medium text-earth-400 uppercase tracking-wide">
+          <div className="bg-green-50 border border-green-100 rounded-xl p-4 space-y-3 mt-2">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
               Rental Details
             </p>
             <input
@@ -186,7 +171,7 @@ export function GearActions({
               onChange={(e) => setRenterUsername(e.target.value)}
             />
             <div>
-              <label className="text-xs text-earth-500 mb-1 block">
+              <label className="text-xs text-gray-500 mb-1 block">
                 Expected Return Date
               </label>
               <input
@@ -203,7 +188,7 @@ export function GearActions({
               onChange={(e) => setNote(e.target.value)}
             />
             {error && (
-              <p className="text-red-400 text-xs bg-red-900/20 px-3 py-2 rounded-lg">
+              <p className="text-red-600 text-xs bg-red-50 border border-red-100 px-3 py-2 rounded-xl">
                 {error}
               </p>
             )}
@@ -217,11 +202,10 @@ export function GearActions({
           </div>
         )}
 
-        {/* Delete button */}
         <button
           onClick={handleDelete}
           disabled={loading}
-          className="btn-ghost w-full flex items-center justify-center gap-2 text-red-400 hover:text-red-300 mt-2"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 border border-red-100 transition-all mt-1"
         >
           <Trash2 className="w-4 h-4" />
           {confirmDelete ? "Tap again to confirm delete" : "Delete Listing"}
@@ -241,7 +225,13 @@ export function GearActions({
 
   if (item.status !== "available") {
     return (
-      <div className="bg-earth-700/50 text-earth-400 text-sm text-center py-3 rounded-lg">
+      <div
+        className={`text-sm text-center py-3 px-4 rounded-xl font-medium border ${
+          item.status === "rented"
+            ? "bg-red-50 text-red-600 border-red-200"
+            : "bg-yellow-50 text-yellow-600 border-yellow-200"
+        }`}
+      >
         {item.status === "rented"
           ? "🔴 Currently rented out"
           : "🟡 Currently reserved"}
@@ -284,7 +274,7 @@ export function GearActions({
         </a>
       )}
       {!item.contact_phone && !item.contact_email && (
-        <p className="text-center text-earth-500 text-sm">
+        <p className="text-center text-gray-400 text-sm py-2">
           No contact info provided
         </p>
       )}

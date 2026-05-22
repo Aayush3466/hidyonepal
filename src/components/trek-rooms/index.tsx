@@ -150,7 +150,7 @@ export function MemberList({
   return (
     <div className="space-y-4">
       <div className="card p-4">
-        <h3 className="text-sm font-semibold text-earth-400 uppercase tracking-wide mb-3">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
           Members ({accepted.length})
         </h3>
         <div className="space-y-2">
@@ -161,7 +161,9 @@ export function MemberList({
                 name={m.profiles?.username || "U"}
                 size="sm"
               />
-              <span className="text-sm flex-1">{m.profiles?.username}</span>
+              <span className="text-sm flex-1 text-gray-800 font-medium">
+                {m.profiles?.username}
+              </span>{" "}
               {m.role === "admin" && (
                 <Shield className="w-3.5 h-3.5 text-brand-400" />
               )}
@@ -180,7 +182,7 @@ export function MemberList({
 
       {isAdmin && pending.length > 0 && (
         <div className="card p-4">
-          <h3 className="text-sm font-semibold text-earth-400 uppercase tracking-wide mb-3">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
             Pending Requests ({pending.length})
           </h3>
           <div className="space-y-2">

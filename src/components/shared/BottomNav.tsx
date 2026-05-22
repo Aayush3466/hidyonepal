@@ -15,22 +15,25 @@ const nav = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-earth-900/95 backdrop-blur-sm border-t border-earth-800 h-16 flex items-center justify-around px-2">
-      {nav.map(({ href, icon: Icon, label }) => (
-        <Link
-          key={href}
-          href={href}
-          className={cn(
-            "flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-colors",
-            pathname.startsWith(href)
-              ? "text-brand-400"
-              : "text-earth-500 hover:text-earth-300",
-          )}
-        >
-          <Icon className="w-5 h-5" />
-          <span className="text-xs">{label}</span>
-        </Link>
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-earth-200 h-16 flex items-center justify-around px-2 shadow-sm">
+      {nav.map(({ href, icon: Icon, label }) => {
+        const active = pathname.startsWith(href);
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              "flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all",
+              active ? "text-brand-600" : "text-earth-400 hover:text-earth-600",
+            )}
+          >
+            <Icon className={cn("w-5 h-5", active && "stroke-[2.5px]")} />
+            <span className={cn("text-xs", active ? "font-medium" : "")}>
+              {label}
+            </span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }

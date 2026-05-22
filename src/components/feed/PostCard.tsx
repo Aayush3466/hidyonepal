@@ -69,16 +69,18 @@ export const PostCard = React.memo(function PostCard({
     : [];
 
   return (
-    <article className="card p-4">
+    <article className="card p-4 border-2 border-green-100 hover:border-green-300 transition-all">
+      {" "}
       <div className="flex gap-3">
         <div className="flex flex-col items-center gap-1 pt-0.5 flex-shrink-0">
           <button
             onClick={() => handleVote(1)}
+            aria-label="Upvote"
             className={cn(
               "p-1 rounded transition-colors",
               userVote === 1
-                ? "text-brand-400"
-                : "text-earth-500 hover:text-earth-200",
+                ? "text-green-600"
+                : "text-gray-400 hover:text-gray-600",
             )}
           >
             <ChevronUp className="w-5 h-5" />
@@ -87,21 +89,22 @@ export const PostCard = React.memo(function PostCard({
             className={cn(
               "text-sm font-medium",
               votes > 0
-                ? "text-brand-400"
+                ? "text-green-600"
                 : votes < 0
-                  ? "text-blue-400"
-                  : "text-earth-400",
+                  ? "text-blue-500"
+                  : "text-gray-400",
             )}
           >
             {votes}
           </span>
           <button
             onClick={() => handleVote(-1)}
+            aria-label="Downvote"
             className={cn(
               "p-1 rounded transition-colors",
               userVote === -1
-                ? "text-blue-400"
-                : "text-earth-500 hover:text-earth-200",
+                ? "text-blue-500"
+                : "text-gray-400 hover:text-gray-600",
             )}
           >
             <ChevronDown className="w-5 h-5" />
@@ -115,8 +118,8 @@ export const PostCard = React.memo(function PostCard({
               name={post.profiles?.username || "U"}
               size="sm"
             />
-            <span className="text-xs text-earth-400">
-              <span className="text-earth-300 font-medium">
+            <span className="text-xs text-gray-400">
+              <span className="text-gray-700 font-medium">
                 {post.profiles?.username}
               </span>
               {" · "}
@@ -128,13 +131,14 @@ export const PostCard = React.memo(function PostCard({
           </div>
 
           <Link href={`/feed/${post.id}`}>
-            <h2 className="font-semibold text-earth-100 leading-snug mb-1 hover:text-brand-300 transition-colors">
+            <h2 className="font-semibold text-gray-800 leading-snug mb-1 hover:text-green-700 transition-colors">
+              {" "}
               {post.title}
             </h2>
           </Link>
 
           {post.body && (
-            <p className="text-sm text-earth-400 line-clamp-2 mb-2">
+            <p className="text-sm text-gray-500 line-clamp-2 mb-2">
               {post.body}
             </p>
           )}
@@ -153,19 +157,20 @@ export const PostCard = React.memo(function PostCard({
             </div>
           )}
 
-          <div className="flex items-center gap-3 text-xs text-earth-500 mt-2">
+          <div className="flex items-center gap-3 text-xs text-gray-400 mt-2">
+            {" "}
             {post.location && (
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 text-green-700 font-medium">
                 <MapPin className="w-3 h-3" />
                 {post.location}
               </span>
             )}
             <Link
               href={`/feed/${post.id}`}
-              className="flex items-center gap-1 hover:text-earth-300"
+              className="flex items-center gap-1.5 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full hover:bg-green-100 transition-colors text-green-700"
             >
-              <MessageSquare className="w-3 h-3" />
-              {post.comment_count || 0}
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>{post.comment_count || 0} comments</span>
             </Link>
             {(post.tags || []).slice(0, 2).map((tag: string) => (
               <span key={tag} className="tag">

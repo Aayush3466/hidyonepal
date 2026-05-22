@@ -88,16 +88,26 @@ export default async function RouteDetailPage({ params }: any) {
         <div className="flex items-start justify-between gap-2 mb-2">
           <h1 className="text-xl font-semibold">{route.name}</h1>
           <span
-            className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${DIFFICULTY_COLOR[route.difficulty]}`}
+            className={`text-xs px-2.5 py-1 rounded-full font-medium border flex-shrink-0 ${
+              route.difficulty === "Easy"
+                ? "bg-green-100 text-green-700 border-green-200"
+                : route.difficulty === "Moderate"
+                  ? "bg-blue-100 text-blue-700 border-blue-200"
+                  : route.difficulty === "Hard"
+                    ? "bg-orange-100 text-orange-700 border-orange-200"
+                    : "bg-red-100 text-red-700 border-red-200"
+            }`}
           >
             {route.difficulty}
           </span>
         </div>
-        <p className="text-xs text-earth-500 mb-3 flex items-center gap-1">
+        <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
+          {" "}
           <MapPin className="w-3 h-3" />
           {route.region}
         </p>
-        <p className="text-sm text-earth-300 leading-relaxed mb-4">
+        <p className="text-sm text-gray-600 leading-relaxed mb-4">
+          {" "}
           {route.description}
         </p>
 
@@ -115,19 +125,22 @@ export default async function RouteDetailPage({ params }: any) {
             { label: "Start", value: route.startPoint, icon: MapPin },
             { label: "End", value: route.endPoint, icon: MapPin },
           ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-earth-700/50 rounded-lg p-2">
+            <div
+              key={label}
+              className="bg-white border border-green-100 rounded-xl p-2"
+            >
               <div className="flex items-center gap-1 mb-0.5">
-                <Icon className="w-3 h-3 text-earth-500" />
-                <p className="text-xs text-earth-500">{label}</p>
+                <Icon className="w-3 h-3 text-green-600" />
+                <p className="text-xs text-gray-400">{label}</p>
               </div>
-              <p className="text-xs font-medium text-earth-200">{value}</p>
+              <p className="text-xs font-semibold text-gray-800">{value}</p>
             </div>
           ))}
         </div>
 
         {/* Highlights */}
         <div className="mb-4">
-          <p className="text-xs font-medium text-earth-500 uppercase tracking-wide mb-2">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
             Highlights
           </p>
           <div className="flex flex-wrap gap-1">
@@ -157,20 +170,21 @@ export default async function RouteDetailPage({ params }: any) {
           <h2 className="font-semibold text-sm">Estimated Cost</h2>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-3">
-          <div className="bg-earth-700/50 rounded-lg p-3">
-            <p className="text-xs text-earth-500 mb-1">🇳🇵 Nepali Trekkers</p>
-            <p className="text-sm font-semibold text-brand-400">
+          <div className="bg-white border border-green-100 rounded-xl p-3">
+            <p className="text-xs text-gray-500 mb-1">🇳🇵 Nepali Trekkers</p>
+            <p className="text-sm font-semibold text-green-700">
               {route.costNepali}
             </p>
           </div>
-          <div className="bg-earth-700/50 rounded-lg p-3">
-            <p className="text-xs text-earth-500 mb-1">🌍 International</p>
-            <p className="text-xs font-semibold text-earth-200 leading-relaxed">
+          <div className="bg-white border border-green-100 rounded-xl p-3">
+            <p className="text-xs text-gray-500 mb-1">🌍 International</p>
+            <p className="text-xs font-semibold text-gray-700 leading-relaxed">
               {route.costInternational}
             </p>
           </div>
         </div>
-        <p className="text-xs text-earth-500 leading-relaxed bg-earth-700/30 rounded-lg p-3">
+        <p className="text-xs text-gray-600 leading-relaxed bg-green-50 border border-green-100 rounded-xl p-3">
+          {" "}
           💡 {route.costNote}
         </p>
       </div>
@@ -181,7 +195,9 @@ export default async function RouteDetailPage({ params }: any) {
           <FileText className="w-4 h-4 text-brand-400" />
           <h2 className="font-semibold text-sm">Permits Required</h2>
         </div>
-        <p className="text-xs text-earth-300 leading-relaxed">{route.permit}</p>
+        <p className="text-xs text-gray-700 leading-relaxed">
+          {route.permit}
+        </p>{" "}
       </div>
 
       {/* ── Weather ── */}
@@ -196,7 +212,8 @@ export default async function RouteDetailPage({ params }: any) {
       {activeRooms.length > 0 && (
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold text-sm flex items-center gap-2">
+            <h2 className="font-semibold text-sm text-gray-800 flex items-center gap-2">
+              {" "}
               <Users className="w-4 h-4 text-brand-400" />
               Active Trek Rooms
             </h2>

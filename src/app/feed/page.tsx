@@ -38,18 +38,23 @@ export default async function FeedPage({ searchParams }: any) {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-3 py-4">
-      <Link
-        href={user ? "/feed/create" : "/login"}
-        className="card flex items-center gap-3 p-3 hover:border-earth-600 transition-colors mb-4 block"
-      >
-        <div className="w-8 h-8 rounded-full bg-earth-700 flex items-center justify-center flex-shrink-0">
-          <PenLine className="w-4 h-4 text-earth-400" />
+    <div className="max-w-xl mx-auto px-4 py-4">
+      <Link href={user ? "/feed/create" : "/login"} className="block mb-4">
+        <div className="bg-white border border-earth-200 rounded-2xl p-4 hover:border-brand-400 hover:shadow-sm transition-all duration-200">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-brand-100 border border-brand-200 flex items-center justify-center flex-shrink-0">
+              <PenLine className="w-4 h-4 text-brand-600" />
+            </div>
+            <span className="text-earth-400 text-sm flex-1">
+              {user
+                ? "Share a tip, ask a question…"
+                : "Sign in to share your experience…"}
+            </span>
+            <span className="btn-primary pointer-events-none text-xs px-3 py-1.5">
+              Post
+            </span>
+          </div>
         </div>
-        <span className="text-earth-500 text-sm flex-1">
-          Share a tip, ask a question…
-        </span>
-        <span className="btn-primary pointer-events-none">Post</span>
       </Link>
       <ErrorBoundary>
         <FeedClient

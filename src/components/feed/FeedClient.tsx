@@ -25,7 +25,6 @@ export function FeedClient({
 
   const [activeType, setActiveType] = useState<string>("all");
   const [activeSort, setActiveSort] = useState<string>(initialSort);
-  const [sortLoading, setSortLoading] = useState(false);
 
   // ✅ Client-side filter — instant, zero network calls
   const filtered =
@@ -38,7 +37,6 @@ export function FeedClient({
   // sort changes the DB query ORDER, can't be done purely client-side).
   function handleSortChange(sort: string) {
     setActiveSort(sort);
-    setSortLoading(true);
     router.push(`/feed?sort=${sort}`);
   }
 
@@ -52,8 +50,8 @@ export function FeedClient({
               onClick={() => setActiveType(t)}
               className={`text-xs px-2.5 py-1 rounded-full transition-colors capitalize ${
                 activeType === t
-                  ? "bg-brand-600 text-white"
-                  : "bg-earth-800 text-earth-400"
+                  ? "bg-green-700 text-white"
+                  : "bg-white text-gray-500 border border-green-200 hover:border-green-400"
               }`}
             >
               {t}
@@ -67,8 +65,8 @@ export function FeedClient({
               onClick={() => handleSortChange(s)}
               className={`text-xs px-2.5 py-1 rounded-full transition-colors capitalize ${
                 activeSort === s
-                  ? "bg-earth-700 text-earth-100"
-                  : "text-earth-500"
+                  ? "bg-green-700 text-white"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {s}
@@ -77,9 +75,6 @@ export function FeedClient({
         </div>
       </div>
 
-      {sortLoading && (
-        <p className="text-center text-earth-500 text-sm py-4">Loading…</p>
-      )}
       <div className="space-y-3">
         {filtered.map((post: any) => (
           <PostCard

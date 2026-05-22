@@ -86,29 +86,35 @@ export function WeatherWidget({ lat, lon }: { lat: number; lon: number }) {
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-earth-700/50 rounded-lg p-2 flex items-center gap-1.5">
-          <Droplets className="w-3 h-3 text-blue-400" />
+        <div className="bg-white border border-green-100 rounded-xl p-2 flex items-center gap-1.5">
+          <Droplets className="w-3 h-3 text-blue-500" />
           <div>
-            <p className="text-xs font-medium">{weather.humidity}%</p>
-            <p className="text-xs text-earth-600">Humidity</p>
+            <p className="text-xs font-semibold text-gray-800">
+              {weather.humidity}%
+            </p>
+            <p className="text-xs text-gray-400">Humidity</p>
           </div>
         </div>
-        <div className="bg-earth-700/50 rounded-lg p-2 flex items-center gap-1.5">
-          <Wind className="w-3 h-3 text-earth-400" />
+        <div className="bg-white border border-green-100 rounded-xl p-2 flex items-center gap-1.5">
+          <Wind className="w-3 h-3 text-gray-500" />
           <div>
-            <p className="text-xs font-medium">{weather.windspeed} km/h</p>
-            <p className="text-xs text-earth-600">Wind</p>
+            <p className="text-xs font-semibold text-gray-800">
+              {weather.windspeed} km/h
+            </p>
+            <p className="text-xs text-gray-400">Wind</p>
           </div>
         </div>
-        <div className="bg-earth-700/50 rounded-lg p-2 flex items-center gap-1.5">
-          <Eye className="w-3 h-3 text-earth-400" />
+        <div className="bg-white border border-green-100 rounded-xl p-2 flex items-center gap-1.5">
+          <Eye className="w-3 h-3 text-gray-500" />
           <div>
-            <p className="text-xs font-medium">{weather.visibility} km</p>
-            <p className="text-xs text-earth-600">Visibility</p>
+            <p className="text-xs font-semibold text-gray-800">
+              {weather.visibility} km
+            </p>
+            <p className="text-xs text-gray-400">Visibility</p>
           </div>
         </div>
       </div>
-      <p className="text-xs text-earth-600 mt-2">
+      <p className="text-xs text-gray-400 mt-2">
         Live data · Open-Meteo · Updates hourly · Free API
       </p>
     </div>

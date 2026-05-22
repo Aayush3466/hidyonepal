@@ -5,8 +5,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { getCurrentUser } from "@/lib/user";
 
-export const revalidate = 60; // refresh every 60 seconds
-
+export const dynamic = "force-dynamic";
 const CATEGORIES = [
   "all",
   "tent",
@@ -41,9 +40,8 @@ export default async function MarketplacePage({ searchParams }: any) {
   let query = supabase
     .from("equipment")
     .select(
-      "id, title, category, condition, listing_type, price_per_day, location, tags, is_available, created_at, profiles(username, avatar_url)",
+      "id, title, category, condition, listing_type, price_per_day, location, tags, is_available, status, created_at, profiles(username, avatar_url)",
     )
-    .eq("is_available", true)
     .order("created_at", { ascending: false })
     .limit(30);
 
@@ -70,7 +68,7 @@ export default async function MarketplacePage({ searchParams }: any) {
           <Link
             key={c}
             href={c === "all" ? "/marketplace" : `/marketplace?category=${c}`}
-            className={`text-xs px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors capitalize ${(category ?? "all") === c ? "bg-brand-600 text-white" : "bg-earth-800 text-earth-400"}`}
+            className={`text-xs px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors capitalize ${(category ?? "all") === c ? "bg-green-700 text-white" : "bg-white text-gray-600 border border-green-200 hover:border-green-400"}`}
           >
             {c.replace("_", " ")}
           </Link>
@@ -82,7 +80,7 @@ export default async function MarketplacePage({ searchParams }: any) {
           <Link
             key={t}
             href={`/marketplace${t !== "all" ? `?type=${t}` : ""}${category && category !== "all" ? `${t !== "all" ? "&" : "?"}category=${category}` : ""}`}
-            className={`text-xs px-3 py-1 rounded-lg capitalize transition-colors ${(listingType ?? "all") === t ? "bg-earth-700 text-earth-100" : "text-earth-500 hover:text-earth-300"}`}
+            className={`text-xs px-3 py-1 rounded-lg capitalize transition-colors ${(listingType ?? "all") === t ? "bg-green-700 text-white" : "text-gray-500 hover:text-gray-700"}`}
           >
             {t === "lend" ? "Free Lend" : t === "all" ? "All Types" : "Rent"}
           </Link>
@@ -101,18 +99,41 @@ export default async function MarketplacePage({ searchParams }: any) {
                 {EMOJI[item.category] || "🎒"}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="font-medium text-sm truncate">{item.title}</h2>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h2 className="font-medium text-sm text-gray-800 truncate">
+                    {item.title}
+                  </h2>
                   <span
-                    className={`text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${item.listing_type === "lend" ? "bg-green-900/50 text-green-400" : "bg-blue-900/50 text-blue-400"}`}
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 border ${
+                      item.listing_type === "lend"
+                        ? "bg-green-100 text-green-700 border-green-200"
+                        : "bg-blue-100 text-blue-700 border-blue-200"
+                    }`}
                   >
                     {item.listing_type === "lend" ? "Free" : "Rent"}
                   </span>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 border ${
+                      (item.status ?? "available") === "available"
+                        ? "bg-green-50 text-green-600 border-green-200"
+                        : item.status === "rented"
+                          ? "bg-red-50 text-red-600 border-red-200"
+                          : "bg-yellow-50 text-yellow-600 border-yellow-200"
+                    }`}
+                  >
+                    {(item.status ?? "available") === "available"
+                      ? "Available"
+                      : item.status === "rented"
+                        ? "Rented"
+                        : "Reserved"}
+                  </span>
                 </div>
-                <p className="text-sm font-semibold text-brand-400">
+                <p className="text-sm font-semibold text-green-700">
+                  {" "}
                   {formatPrice(item.price_per_day)}
                 </p>
-                <div className="flex items-center gap-3 text-xs text-earth-500 mt-1">
+                <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                  {" "}
                   {item.location && (
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
